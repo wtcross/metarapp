@@ -37,6 +37,29 @@ node()
 
 checkpoint "Deployed to Dev"
 
+stage name: 'Quality analysis and Perfs'
+parallel(qualityAnalysis: {
+
+    node('slave1'){
+        // RUN SONAR ANALYSIS
+        echo "INFO - Starting SONAR"
+        ensureMaven()
+        //sh 'mvn -o sonar:sonar'
+        echo "INFO - Ending SONAR"
+    }
+}, performanceTest: {
+
+    node('slave1'){
+        // DEPLOY ON PERFS AND RUN JMETER STRESS TEST
+        echo "INFO - starting Perf Tests"
+        //sh 'mvn -o jmeter:jmeter'
+        echo "INFO - Ending Perf Tests"
+    }
+}
+)
+
+checkpoint "QA analysis complete"
+
 stage "Approval for QA Deploy"
 timeout(time: 10, unit: 'MINUTES')
 {
