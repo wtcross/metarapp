@@ -12,7 +12,7 @@ node(){
     
      docker.withServer('unix:///var/run/docker.sock'){
 
-        def metarappImage = docker.build "hdharia/metarapp-wildfy-app:latest"
+        def metarappImage = docker.build "hdharia/metarapp-wildfy-app:${env.BUILD_NUMBER}"
        
         sh "docker -v"
         //use withDockerRegistry to make sure we are logged in to docker hub registry
