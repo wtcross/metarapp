@@ -40,7 +40,7 @@ checkpoint "Deployed to Dev"
 stage name: 'Quality analysis and Perfs'
 parallel(qualityAnalysis: {
 
-    node('slave1'){
+    node(){
         // RUN SONAR ANALYSIS
         echo "INFO - Starting SONAR"
         ensureMaven()
@@ -49,7 +49,7 @@ parallel(qualityAnalysis: {
     }
 }, performanceTest: {
 
-    node('slave1'){
+    node(){
         // DEPLOY ON PERFS AND RUN JMETER STRESS TEST
         echo "INFO - starting Perf Tests"
         //sh 'mvn -o jmeter:jmeter'
