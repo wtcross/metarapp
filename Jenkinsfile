@@ -6,8 +6,9 @@ node(){
 
 	sh('pwd')
 	sh('git rev-parse HEAD > GIT_COMMIT')
-    def commit_id=readFile('GIT_COMMIT')
-	echo "COMMIT_ID ${commit_id}"
+    def commit_id=readFile('GIT_COMMIT')	
+    echo "COMMIT_ID ${commit_id}"    
+    
     ensureMaven()
     sh 'mvn clean install'
     stash includes: 'deployments/ROOT.war', name: 'war'
@@ -33,14 +34,36 @@ node()
 {
 	echo "Deploying to Dev"
 	unstash 'war'
-	echo "Launching Dev Server for $commit"
-	//Ansible call to standup dev environment
-	sh 'tower-cli job launch --job-template=62 --extra-vars="commit_id=${commit_id}"'
 	
+	echo "Launching Dev Server for ${commit_id}"
+	
+	//Ansible call to standup dev environment
+    //Configure tower-cli
+    sh 'tower-cli config host ansible-tower.dlt-demo.com'
+    sh 'tower-cli config username admin'
+    sh 'tower-cli config password ansibleCOWSAY1'
+    sh 'tower-cli config verify_ssl false'
+    
+    //Call Ansible
+    sh "tower-cli job launch --job-template=62 --extra-vars=\"commit_id=${commit_id}\""
+    
+    stage "Verify DEV Deployment"
+	timeout(time: 10, unit: 'MINUTES')
+	{
+	   try
+	   { 
+	      input message: 'Dev Deployment Verified'
+	   } 
+	   catch(Exception e)
+	   {
+	      echo "No input provided, resuming build"
+	   } 
+	}
+		
 	echo "Deployed to Dev"
 }
 
-checkpoint "Deployed to Dev"
+checkpoint "Deployed and Verified at Dev"
 
 stage name: 'Quality analysis and Perfs'
 parallel(qualityAnalysis: {
@@ -62,6 +85,22 @@ parallel(qualityAnalysis: {
     }
 }
 )
+
+stage 'Tear Down DEV'
+node()
+{
+	echo "Tear Down DEV"	
+	
+	//Ansible call to standup dev environment
+    //Configure tower-cli
+    sh 'tower-cli config host ansible-tower.dlt-demo.com'
+    sh 'tower-cli config username admin'
+    sh 'tower-cli config password ansibleCOWSAY1'
+    sh 'tower-cli config verify_ssl false'
+    
+    //Call Ansible
+    sh "tower-cli job launch --job-template=63 --extra-vars=\"commit_id=${commit_id}\""
+}
 
 checkpoint "QA analysis complete"
 
