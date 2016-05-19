@@ -42,11 +42,6 @@ node()
 	echo "Launching Dev Server for ${commit_id}"
 	
 	//Ansible call to standup dev environment
-    //Configure tower-cli
-    //sh 'tower-cli config host ansible-tower.dlt-demo.com'
-    //sh 'tower-cli config username admin'
-    //sh 'tower-cli config password ansibleCOWSAY1'
-    //sh 'tower-cli config verify_ssl false'
     
     //Call Ansible
     sh "tower-cli job launch --job-template=62 --extra-vars=\"commit_id=${commit_id}\""
@@ -94,14 +89,7 @@ stage 'Tear Down DEV'
 node()
 {
 	echo "Tear Down DEV"	
-	
-	//Ansible call to standup dev environment
-    //Configure tower-cli
-    sh 'tower-cli config host ansible-tower.dlt-demo.com'
-    sh 'tower-cli config username admin'
-    sh 'tower-cli config password ansibleCOWSAY1'
-    sh 'tower-cli config verify_ssl false'
-    
+	    
     //Call Ansible
     sh "tower-cli job launch --job-template=63 --extra-vars=\"commit_id=${commit_id}\""
 }
@@ -126,12 +114,45 @@ node()
 {
 	echo "Deploying to QA"
 	
-	//Add anisble call here for QA environment
-	
+ 	//Call Ansible
+    sh "tower-cli job launch --job-template=62 --extra-vars=\"commit_id=${commit_id}\""	
+
+    stage "Verify DEV Deployment"
+	timeout(time: 20, unit: 'MINUTES')
+	{
+	   try
+	   { 
+	      input message: 'Dev Deployment Verified'
+	   } 
+	   catch(Exception e)
+	   {
+	      echo "No input provided, resuming build"
+	   } 
+	}
+		
 	echo "Deployed to QA"
 }
 
 checkpoint "Deployed to QA"
+
+stage 'Tear Down QA'
+node()
+{
+	echo "Tear Down QA"	
+	timeout(time: 20, unit: 'MINUTES')
+	{
+	   try
+	   { 
+	      input message: 'QA Test Completed, Tear Down QA'
+	   } 
+	   catch(Exception e)
+	   {
+	      echo "No input provided, resuming build"
+	   } 
+	}    
+    //Call Ansible
+    sh "tower-cli job launch --job-template=63 --extra-vars=\"commit_id=${commit_id}\""
+}
 
 stage 'Approval for Staging Deploy'
 timeout(time: 60, unit: 'SECONDS')
@@ -152,6 +173,18 @@ node()
 	echo "Deploying to Staging"
 	
 	//Hook in openshift deployment
+	wrap([$class: 'OpenShiftBuildWrapper',
+                url: 'https://openshift.beesshop.org:8443',
+                credentialsId: 'openshift-admin-aws',
+                insecure: true, //Don't check server certificate
+                ]) {
+ 
+                // oc & source2image
+                sh """
+                oc project movieplex-application
+                oc start-build j2ee-application-build
+                """
+        }
 	
 	echo "Deployed to Staging"
 }
@@ -169,6 +202,18 @@ node()
 	echo "Deploying to Prod"
 	
 	//Hook into oepnshift deployment
+	wrap([$class: 'OpenShiftBuildWrapper',
+                url: 'https://openshift.beesshop.org:8443',
+                credentialsId: 'openshift-admin-aws',
+                insecure: true, //Don't check server certificate
+                ]) {
+ 
+                // oc & source2image
+                sh """
+                oc project movieplex-application
+                oc start-build j2ee-application-build
+                """
+        }
 	
 	echo "Deployed to Prod"
 }
