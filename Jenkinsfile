@@ -29,8 +29,9 @@ node()
 {
 	echo "Deploying to Dev"
 	unstash 'war'
-	
-	//Add ansible call here
+	echo "Launching Dev Server for " ${env.GIT_COMMIT}
+	//Ansible call to standup dev environment
+	sh 'tower-cli job launch --job-template=62 --extra-vars="commit_id=${env.GIT_COMMIT}"'
 	
 	echo "Deployed to Dev"
 }
