@@ -4,6 +4,10 @@ node(){
     // COMPILE AND JUNIT
     checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/hdharia/metarapp.git']]])
 
+	sh('pwd')
+	sh('git rev-parse HEAD > GIT_COMMIT')
+    def commit_id=readFile('GIT_COMMIT')
+	echo "COMMIT_ID ${commit_id}"
     ensureMaven()
     sh 'mvn clean install'
     stash includes: 'deployments/ROOT.war', name: 'war'
@@ -29,9 +33,9 @@ node()
 {
 	echo "Deploying to Dev"
 	unstash 'war'
-	echo "Launching Dev Server for ${env.GIT_COMMIT}"
+	echo "Launching Dev Server for $commit"
 	//Ansible call to standup dev environment
-	sh 'tower-cli job launch --job-template=62 --extra-vars="commit_id=${env.GIT_COMMIT}"'
+	sh 'tower-cli job launch --job-template=62 --extra-vars="commit_id=${commit_id}"'
 	
 	echo "Deployed to Dev"
 }
