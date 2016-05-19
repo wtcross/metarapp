@@ -4,6 +4,8 @@ stage 'Build and Publish'
 node(){
 
     // COMPILE AND JUNIT
+    
+    //use git checkout
     checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/hdharia/metarapp.git']]])
 
 	sh('pwd')
@@ -41,16 +43,16 @@ node()
 	
 	//Ansible call to standup dev environment
     //Configure tower-cli
-    sh 'tower-cli config host ansible-tower.dlt-demo.com'
-    sh 'tower-cli config username admin'
-    sh 'tower-cli config password ansibleCOWSAY1'
-    sh 'tower-cli config verify_ssl false'
+    //sh 'tower-cli config host ansible-tower.dlt-demo.com'
+    //sh 'tower-cli config username admin'
+    //sh 'tower-cli config password ansibleCOWSAY1'
+    //sh 'tower-cli config verify_ssl false'
     
     //Call Ansible
     sh "tower-cli job launch --job-template=62 --extra-vars=\"commit_id=${commit_id}\""
     
     stage "Verify DEV Deployment"
-	timeout(time: 10, unit: 'MINUTES')
+	timeout(time: 20, unit: 'MINUTES')
 	{
 	   try
 	   { 
