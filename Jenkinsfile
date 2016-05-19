@@ -1,3 +1,5 @@
+def commit_id
+
 stage 'Build and Publish'
 node(){
 
@@ -6,7 +8,7 @@ node(){
 
 	sh('pwd')
 	sh('git rev-parse HEAD > GIT_COMMIT')
-    def commit_id=readFile('GIT_COMMIT')	
+    commit_id=readFile('GIT_COMMIT')	
     echo "COMMIT_ID ${commit_id}"    
     
     ensureMaven()
