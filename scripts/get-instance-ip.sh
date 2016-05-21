@@ -25,7 +25,6 @@ get-job-id()
 }
 
 get-instance-ip() {
-  echo "get-instance-ip " ${JOB_ID}
   local TOWER_HOST=$(tower-cli config host | shyaml get-value host)
   local TOWER_USERNAME=$(tower-cli config username | shyaml get-value username)
   local TOWER_PASSWORD=$(tower-cli config password | shyaml get-value password)
@@ -33,7 +32,7 @@ get-instance-ip() {
     --user ${TOWER_USERNAME}:${TOWER_PASSWORD} \
     https://${TOWER_HOST}/api/v1/jobs/${JOB_ID}/job_events/?task__exact=instance%20ip\&event__exact=runner_on_ok)
   local IP=$(echo ${JOB_DATA} | jq .results[0].event_data.res.msg)
-  echo ${IP}
+  echo ${IP//\"/''}
 }
 
 main() {
