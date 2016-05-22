@@ -19,6 +19,8 @@ node(){
     step $class: 'hudson.tasks.junit.JUnitResultArchiver', testResults: 'target/surefire-reports/*.xml'
     echo "INFO - Ending build phase"
 
+    if (env.BRANCH_NAME.startsWith("master")) //Only publish to docker if on master branch
+    {
      docker.withServer('unix:///var/run/docker.sock'){
 
         def metarappImage = docker.build "hdharia/metarapp-jboss-app:${env.BUILD_NUMBER}"
@@ -28,6 +30,7 @@ node(){
         withDockerRegistry(registry: [credentialsId: 'docker-hub-hdharia17']) {
           metarappImage.push()
         }
+      }
    }
 }
 
