@@ -140,6 +140,7 @@ node()
     sh "tower-cli job launch --monitor --job-template=63 --extra-vars=\"commit_id=${commit_id}\""
 }
 
+/*
 if (env.BRANCH_NAME.startsWith("master")) //Deploy to master only from master branch
 {
 	stage 'Approval for Production Deploy'
@@ -154,7 +155,7 @@ if (env.BRANCH_NAME.startsWith("master")) //Deploy to master only from master br
 		echo "Deploying to Prod"
 		
 		//Hook into oepnshift deployment
-		wrap([$class: 'OpenShiftBuildWrapper', url: 'https://master.ose.dlt-demo.com:8443', credentialsId: 'DLT_OC', insecure: true, //Don't check server certificate]) {
+		wrap([$class: 'OpenShiftBuildWrapper', url: 'https://master.ose.dlt-demo.com:8443', credentialsId: 'DLT_OC', insecure: true //Don't check server certificate]) {
 	 
 				sh "oc new-app hdharia/metarapp-jboss-dlt:${env.BUILD_NUMBER}"
 	        }
@@ -162,6 +163,7 @@ if (env.BRANCH_NAME.startsWith("master")) //Deploy to master only from master br
 		echo "Deployed to Prod"
 	}
 }
+*/
 
 /**
  * Deploy Maven on the slave if needed and add it to the path
