@@ -21,7 +21,7 @@ node(){
 
      docker.withServer('unix:///var/run/docker.sock'){
 
-        def metarappImage = docker.build "hdharia/metarapp-wildfy-app:${env.BUILD_NUMBER}"
+        def metarappImage = docker.build "hdharia/metarapp-jboss-app:${env.BUILD_NUMBER}"
 
         sh "docker -v"
         //use withDockerRegistry to make sure we are logged in to docker hub registry
@@ -156,7 +156,7 @@ if (env.BRANCH_NAME.startsWith("master")) //Deploy to master only from master br
 		//Hook into oepnshift deployment
 		//wrap([$class: 'OpenShiftBuildWrapper', url: 'https://master.ose.dlt-demo.com:8443', credentialsId: 'DLT_OC', insecure: true//Don't check server certificate]) {
 
-				sh "oc new-app hdharia/metarapp-jboss-dlt:${env.BUILD_NUMBER}"
+				//sh "oc new-app hdharia/metarapp-jboss-dlt:${env.BUILD_NUMBER}\""
 	      //  }
 
 		echo "Deployed to Prod"
