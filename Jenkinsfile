@@ -36,30 +36,21 @@ checkpoint "Build Complete"
 stage 'Dev Deploy via Ansible'
 node()
 {
-	echo "Deploying to Dev"
-	unstash 'war'
-	
 	echo "Launching Dev Server for ${commit_id}"
 	
 	//Ansible call to standup dev environment
     
-    //Call Ansible
-    sh "tower-cli job launch --job-template=62 --extra-vars=\"commit_id=${commit_id}\""
-    
-    stage "Verify DEV Deployment"
-	timeout(time: 20, unit: 'MINUTES')
-	{
-	   try
-	   { 
-	      input message: 'Dev Deployment Verified'
-	   } 
-	   catch(Exception e)
-	   {
-	      echo "No input provided, resuming build"
-	   } 
-	}
-		
-	echo "Deployed to Dev"
+   //Call Ansible
+   sh "tower-cli job launch --monitor --job-template=62 --extra-vars=\"commit_id=${commit_id}\" > JOB_OUTPUT"
+ 
+   sh 'scripts/get-instance-ip.sh > IP'
+   
+   def IP=readFile('IP')
+   echo "Application Link: ${IP}:8080/metarapp/metars_map.html"
+   
+   stage "Verify Dev Deployment"
+   input message: "Does Dev at ${IP}:8080/metarapp/metars_map.html look good?"
+   echo "Deployed to Dev"
 }
 
 checkpoint "Deployed and Verified at Dev"
@@ -91,7 +82,7 @@ node()
 	echo "Tear Down DEV"	
 	    
     //Call Ansible
-    sh "tower-cli job launch --job-template=63 --extra-vars=\"commit_id=${commit_id}\""
+   sh "tower-cli job launch --monitor --job-template=63 --extra-vars=\"commit_id=${commit_id}\""
 }
 
 checkpoint "QA analysis complete"
@@ -115,22 +106,17 @@ node()
 	echo "Deploying to QA"
 	
  	//Call Ansible
-    sh "tower-cli job launch --job-template=62 --extra-vars=\"commit_id=${commit_id}\""	
-
-    stage "Verify DEV Deployment"
-	timeout(time: 20, unit: 'MINUTES')
-	{
-	   try
-	   { 
-	      input message: 'Dev Deployment Verified'
-	   } 
-	   catch(Exception e)
-	   {
-	      echo "No input provided, resuming build"
-	   } 
-	}
-		
-	echo "Deployed to QA"
+   sh "tower-cli job launch --monitor --job-template=62 --extra-vars=\"commit_id=${commit_id}\" > JOB_OUTPUT"
+ 
+   sh 'scripts/get-instance-ip.sh > IP'
+   
+   def IP=readFile('IP')
+   echo "Application Link: ${IP}:8080/metarapp/metars_map.html"
+   
+   stage "Verify DEV Deployment"
+   input message: "Does QA at ${IP}:8080/metarapp/metars_map.html look good?"
+	
+   echo "Deployed to QA"
 }
 
 checkpoint "Deployed to QA"
@@ -151,71 +137,30 @@ node()
 	   } 
 	}    
     //Call Ansible
-    sh "tower-cli job launch --job-template=63 --extra-vars=\"commit_id=${commit_id}\""
+    sh "tower-cli job launch --monitor --job-template=63 --extra-vars=\"commit_id=${commit_id}\""
 }
 
-stage 'Approval for Staging Deploy'
-timeout(time: 60, unit: 'SECONDS')
+if (env.BRANCH_NAME.startsWith("master")) //Deploy to master only from master branch
 {
-   try
-   {
-    input message: "Deploy to Staging?"
-   } 
-   catch(Exception e)
-   {
-      echo "No input provided, resuming build"
-   } 
-}
-
-stage 'Staging Deploy'
-node()
-{
-	echo "Deploying to Staging"
+	stage 'Approval for Production Deploy'
+	timeout(time: 60, unit: 'SECONDS')
+	{
+	   input message: "Deploy to Prod?"
+	}
 	
-	//Hook in openshift deployment
-	wrap([$class: 'OpenShiftBuildWrapper',
-                url: 'https://openshift.beesshop.org:8443',
-                credentialsId: 'openshift-admin-aws',
-                insecure: true, //Don't check server certificate
-                ]) {
- 
-                // oc & source2image
-                sh """
-                oc project movieplex-application
-                oc start-build j2ee-application-build
-                """
-        }
-	
-	echo "Deployed to Staging"
-}
-
-checkpoint "Deployed to Staging"
-stage 'Approval for Production Deploy'
-timeout(time: 60, unit: 'SECONDS')
-{
-   input message: "Deploy to Prod?"
-}
-
-stage 'Deploy to Production'
-node()
-{
-	echo "Deploying to Prod"
-	
-	//Hook into oepnshift deployment
-	wrap([$class: 'OpenShiftBuildWrapper',
-                url: 'https://openshift.beesshop.org:8443',
-                credentialsId: 'openshift-admin-aws',
-                insecure: true, //Don't check server certificate
-                ]) {
- 
-                // oc & source2image
-                sh """
-                oc project movieplex-application
-                oc start-build j2ee-application-build
-                """
-        }
-	
-	echo "Deployed to Prod"
+	stage 'Deploy to Production'
+	node()
+	{
+		echo "Deploying to Prod"
+		
+		//Hook into oepnshift deployment
+		wrap([$class: 'OpenShiftBuildWrapper', url: 'https://master.ose.dlt-demo.com:8443', credentialsId: 'DLT_OC', insecure: true, //Don't check server certificate]) {
+	 
+				sh "oc new-app hdharia/metarapp-jboss-dlt:${env.BUILD_NUMBER}"
+	        }
+		
+		echo "Deployed to Prod"
+	}
 }
 
 /**
