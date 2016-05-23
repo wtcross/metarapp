@@ -145,6 +145,8 @@ node()
 
 if (env.BRANCH_NAME.startsWith("master")) //Deploy to master only from master branch
 {
+ checkpoint "QA Testing complete, Ready for Prod Deployment"
+
 	stage 'Approval for Production Deploy'
 	timeout(time: 60, unit: 'SECONDS')
 	{
@@ -157,7 +159,7 @@ if (env.BRANCH_NAME.startsWith("master")) //Deploy to master only from master br
 		echo "Deploying to Prod"
 
 		//Hook into oepnshift deployment
-		sh "oc new-app hdharia/metarapp-jboss-dlt:${env.BUILD_NUMBER}"
+		sh "oc new-app hdharia/metarapp-jboss-app:${env.BUILD_NUMBER}"
     sh "oc expose svc/metarapp-jboss-app --hostname=metarapp-jboss-app-harshal-project.ose.dlt-demo.com"
 
     echo "Verify Application Deployed to: http://metarapp-jboss-app-harshal-project.ose.dlt-demo.com/weather/metars_map.html"
