@@ -116,7 +116,7 @@ node()
    def IP=readFile('IP')
    echo "Application Link: ${IP}:8080/metarapp/metars_map.html"
 
-   stage "Verify DEV Deployment"
+   stage "Verify QA Deployment"
    input message: "Does QA at ${IP}:8080/metarapp/metars_map.html look good?"
 
    echo "Deployed to QA"
