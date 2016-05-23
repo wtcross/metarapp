@@ -158,11 +158,14 @@ if (env.BRANCH_NAME.startsWith("master")) //Deploy to master only from master br
 	{
 		echo "Deploying to Prod"
 
-		//Hook into oepnshift deployment
-		sh "oc new-app hdharia/metarapp-jboss-app:${env.BUILD_NUMBER}"
-    sh "oc expose svc/metarapp-jboss-app --hostname=metarapp-jboss-app-harshal-project.ose.dlt-demo.com"
+    wrap([$class: 'OpenShiftBuildWrapper', url: 'https://master.ose.dlt-demo.com:8443', credentialsId: 'DLT_OC', insecure: true]) {
 
-    echo "Verify Application Deployed to: http://metarapp-jboss-app-harshal-project.ose.dlt-demo.com/weather/metars_map.html"
+  		//Hook into oepnshift deployment
+  		sh "oc new-app hdharia/metarapp-jboss-app:${env.BUILD_NUMBER}"
+      sh "oc expose svc/metarapp-jboss-app --hostname=metarapp-jboss-app-harshal-project.ose.dlt-demo.com"
+
+      echo "Verify Application Deployed to: http://metarapp-jboss-app-harshal-project.ose.dlt-demo.com/weather/metars_map.html"
+    }
 
 		echo "Deployed to Prod"
 	}
