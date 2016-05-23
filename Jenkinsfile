@@ -161,6 +161,7 @@ if (env.BRANCH_NAME.startsWith("master")) //Deploy to master only from master br
     wrap([$class: 'OpenShiftBuildWrapper', url: 'https://master.ose.dlt-demo.com:8443', credentialsId: 'DLT_OC', insecure: true]) {
 
   		//Hook into oepnshift deployment
+      sh "oc project harshal-project"
   		sh "oc new-app hdharia/metarapp-jboss-app:${env.BUILD_NUMBER}"
       sh "oc expose svc/metarapp-jboss-app --hostname=metarapp-jboss-app-harshal-project.ose.dlt-demo.com"
 
