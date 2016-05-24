@@ -8,8 +8,8 @@ node(){
     //use git checkout
     checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/hdharia/metarapp.git']]])
 
-	sh('pwd')
-	sh('git rev-parse HEAD > GIT_COMMIT')
+	  sh('pwd')
+	  sh('git rev-parse HEAD > GIT_COMMIT')
     commit_id=readFile('GIT_COMMIT')
     echo "COMMIT_ID ${commit_id}"
 
@@ -91,7 +91,7 @@ node()
 checkpoint "QA analysis complete"
 
 stage "Approval for QA Deploy"
-timeout(time: 10, unit: 'MINUTES')
+timeout(time: 60, unit: 'SECONDS')
 {
    try
    {
@@ -128,7 +128,7 @@ stage 'Tear Down QA'
 node()
 {
 	echo "Tear Down QA"
-	timeout(time: 20, unit: 'MINUTES')
+	timeout(time: 60, unit: 'SECONDS')
 	{
 	   try
 	   {
@@ -152,6 +152,10 @@ if (env.BRANCH_NAME.startsWith("master")) //Deploy to master only from master br
 	{
 	   input message: "Deploy to Prod?"
 	}
+  catch(Exception e)
+  {
+     echo "No input provided, resuming build"
+  }
 
 	stage 'Deploy to Production'
 	node()
