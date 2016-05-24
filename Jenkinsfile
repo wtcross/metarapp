@@ -160,7 +160,7 @@ node()
 	   }
 	}
     //Call Ansible
-    sh "tower-cli job launch --monitor --job-template=63 --extra-vars=\"commit_id=${commit_id}\""
+    //sh "tower-cli job launch --monitor --job-template=63 --extra-vars=\"commit_id=${commit_id}\""
 }
 
 if (env.BRANCH_NAME.startsWith("master")) //Deploy to master only from master branch
@@ -187,12 +187,11 @@ if (env.BRANCH_NAME.startsWith("master")) //Deploy to master only from master br
 
     wrap([$class: 'OpenShiftBuildWrapper', url: 'https://master.ose.dlt-demo.com:8443', credentialsId: 'DLT_OC', insecure: true]) {
 
-
+      sh "oc project harshal-project"
       // Delete existing service:
       sh "oc delete all -l app=metarapp-jboss-app"
       sleep 90
   		//Hook into oepnshift deployment
-      sh "oc project harshal-project"
   		sh "oc new-app hdharia/metarapp-jboss-app:${env.BUILD_NUMBER}"
       sh "oc expose svc/metarapp-jboss-app --hostname=metarapp-jboss-app-harshal-project.ose.dlt-demo.com"
 
