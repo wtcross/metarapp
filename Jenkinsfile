@@ -120,16 +120,25 @@ node()
 	echo "Deploying to QA"
 
  	//Call Ansible
-   sh "tower-cli job launch --monitor --job-template=62 --extra-vars=\"commit_id=${commit_id}\" > JOB_OUTPUT"
+   //sh "tower-cli job launch --monitor --job-template=62 --extra-vars=\"commit_id=${commit_id}\" > JOB_OUTPUT"
 
-   sh 'scripts/get-instance-ip.sh > IP'
+   //sh 'scripts/get-instance-ip.sh > IP'
 
-   def IP=readFile('IP')
-   echo "Application Link: ${IP}:8080/metarapp/metars_map.html"
+   //def IP=readFile('IP')
+   //echo "Application Link: ${IP}:8080/metarapp/metars_map.html"
 
    stage "Verify QA Deployment"
-   input message: "Does QA at ${IP}:8080/metarapp/metars_map.html look good?"
-
+   timeout(time: 60, unit: 'SECONDS')
+   {
+      try
+      {
+        input message: "Does QA at ${IP}:8080/metarapp/metars_map.html look good?"
+      }
+      catch(Exception e)
+      {
+         echo "No input provided, resuming build"
+      }
+   }
    echo "Deployed to QA"
 }
 
@@ -181,6 +190,7 @@ if (env.BRANCH_NAME.startsWith("master")) //Deploy to master only from master br
 
       // Delete existing service:
       sh "oc delete all -l app=metarapp-jboss-app"
+      sleep 90
   		//Hook into oepnshift deployment
       sh "oc project harshal-project"
   		sh "oc new-app hdharia/metarapp-jboss-app:${env.BUILD_NUMBER}"
