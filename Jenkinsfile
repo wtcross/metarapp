@@ -52,7 +52,18 @@ node()
    echo "Application Link: ${IP}:8080/metarapp/metars_map.html"
 
    stage "Verify Dev Deployment"
-   input message: "Does Dev at ${IP}:8080/metarapp/metars_map.html look good?"
+   timeout(time: 60, unit: 'SECONDS')
+   {
+      try
+      {
+        input message: "Does Dev at ${IP}:8080/metarapp/metars_map.html look good?"
+      }
+      catch(Exception e)
+      {
+         echo "No input provided, resuming build"
+      }
+   }
+
    echo "Deployed to Dev"
 }
 
@@ -167,6 +178,9 @@ if (env.BRANCH_NAME.startsWith("master")) //Deploy to master only from master br
 
     wrap([$class: 'OpenShiftBuildWrapper', url: 'https://master.ose.dlt-demo.com:8443', credentialsId: 'DLT_OC', insecure: true]) {
 
+
+      // Delete existing service:
+      sh "oc delete all -l app=metarapp-jboss-app"
   		//Hook into oepnshift deployment
       sh "oc project harshal-project"
   		sh "oc new-app hdharia/metarapp-jboss-app:${env.BUILD_NUMBER}"
