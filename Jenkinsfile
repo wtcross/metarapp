@@ -150,11 +150,14 @@ if (env.BRANCH_NAME.startsWith("master")) //Deploy to master only from master br
 	stage 'Approval for Production Deploy'
 	timeout(time: 60, unit: 'SECONDS')
 	{
+    try
+    {
 	   input message: "Deploy to Prod?"
-	}
-  catch(Exception e)
-  {
-     echo "No input provided, resuming build"
+  	}
+    catch(Exception e)
+    {
+       echo "No input provided, resuming build"
+    }
   }
 
 	stage 'Deploy to Production'
