@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <script src="include/metars.js"></script>
     <link rel="shortcut icon" href="http://www.dlt.com/sites/all/themes/dlt/favicon.ico" />
-    <title>METAR Locations</title>
+    <title>METAR Locations - Welcome</title>
 
     <style>
       html, body, #map-canvas {
@@ -59,13 +59,13 @@
               {
                  aLatlng = new google.maps.LatLng(jsonData[i].latitude,jsonData[i].longitude);
                  aMarker = new google.maps.Marker(
-                      {position: aLatlng, 
+                      {position: aLatlng,
                        icon: {path: google.maps.SymbolPath.CIRCLE, scale: 2},
                        map: map,
                        id: jsonData[i].id,
                        title: jsonData[i].name });
 
-                 google.maps.event.addListener(aMarker, 'click', (function(aMarker, i) 
+                 google.maps.event.addListener(aMarker, 'click', (function(aMarker, i)
                       { return function() { loadInfoWindow(map, aMarker); } })(aMarker, i));
 
               }
@@ -111,7 +111,7 @@
 
                  var regExpRepace = new RegExp(", "+_marker.id, "gi");
                  aTranslatedMetars = metar(aMetars);
-                 aTranslatedMetars = 
+                 aTranslatedMetars =
                      aTranslatedMetars.replace(regExpRepace, "<br>"+_marker.id);
 
                  aContentString = '<div id="content">'+
@@ -137,7 +137,7 @@
                  }
 
                  var aInfowindow = new google.maps.InfoWindow({ content: aContentString });
-                 aInfowindow.open(_map,_marker); 
+                 aInfowindow.open(_map,_marker);
               }
            }
 
