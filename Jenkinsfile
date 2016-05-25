@@ -6,7 +6,6 @@ node(){
     // COMPILE AND JUNIT
 
     //use git checkout
-    //checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/hdharia/metarapp.git']]])
     checkout scm
 
 
@@ -17,7 +16,7 @@ node(){
 
     ensureMaven()
     sh 'mvn clean install'
-    stash includes: 'deployments/ROOT.war', name: 'war'
+
     step $class: 'hudson.tasks.junit.JUnitResultArchiver', testResults: 'target/surefire-reports/*.xml'
     echo "INFO - Ending build phase"
 
@@ -51,14 +50,14 @@ node()
    sh 'scripts/get-instance-ip.sh > IP'
 
    def IP=readFile('IP')
-   echo "Application Link: ${IP}:8080/metarapp/metars_map.html"
+   echo "Application Link: ${IP}:8080/metarapp/metars.html"
 
    stage "Verify Dev Deployment"
    timeout(time: 60, unit: 'SECONDS')
    {
       try
       {
-        input message: "Does Dev at ${IP}:8080/metarapp/metars_map.html look good?"
+        input message: "Does Dev at ${IP}:8080/metarapp/metars.html look good?"
       }
       catch(Exception e)
       {
@@ -127,14 +126,14 @@ node()
    //sh 'scripts/get-instance-ip.sh > IP'
 
    //def IP=readFile('IP')
-   //echo "Application Link: ${IP}:8080/metarapp/metars_map.html"
+   //echo "Application Link: ${IP}:8080/metarapp/metars.html"
 
    stage "Verify QA Deployment"
    timeout(time: 60, unit: 'SECONDS')
    {
       try
       {
-        input message: "Does QA at ${IP}:8080/metarapp/metars_map.html look good?"
+        input message: "Does QA at ${IP}:8080/metarapp/metars.html look good?"
       }
       catch(Exception e)
       {
@@ -165,7 +164,6 @@ node()
     //sh "tower-cli job launch --monitor --job-template=63 --extra-vars=\"commit_id=${commit_id}\""
 }
 
-/*
 if (env.BRANCH_NAME.startsWith("master")) //Deploy to master only from master branch
 {
  checkpoint "QA Testing complete, Ready for Prod Deployment"
@@ -186,36 +184,24 @@ if (env.BRANCH_NAME.startsWith("master")) //Deploy to master only from master br
 	stage 'Deploy to Production'
 	node()
 	{
-		echo "Deploying to Prod"
-<<<<<<< HEAD
+    echo "Deploying to Prod"
 
-    wrap([$class: 'OpenShiftBuildWrapper', url: 'https://master.ose.dlt-demo.com:8443', credentialsId: 'DLT_OC', insecure: true]) {
+   wrap([$class: 'OpenShiftBuildWrapper', url: 'https://master.ose.dlt-demo.com:8443', credentialsId: 'DLT_OC', insecure: true]) {
 
-      sh "oc project harshal-project"
-      // Delete existing service:
-      sh "oc delete all -l app=metarapp-jboss-app"
-      sleep 90
-  		//Hook into oepnshift deployment
-  		sh "oc new-app hdharia/metarapp-jboss-app:${env.BUILD_NUMBER}"
-      sh "oc expose svc/metarapp-jboss-app --hostname=metarapp-jboss-app-harshal-project.ose.dlt-demo.com"
+     sh "oc project harshal-project"
+     // Delete existing service:
+     sh "oc delete all -l app=metarapp-jboss-app"
+     sleep 90
+     //Hook into oepnshift deployment
+     sh "oc new-app hdharia/metarapp-jboss-app:${env.BUILD_NUMBER}"
+     sh "oc expose svc/metarapp-jboss-app --hostname=metarapp-jboss-app-harshal-project.ose.dlt-demo.com"
 
-      echo "Verify Application Deployed to: http://metarapp-jboss-app-harshal-project.ose.dlt-demo.com/weather/metars_map.html"
-    }
+     echo "Verify Application Deployed to: http://metarapp-jboss-app-harshal-project.ose.dlt-demo.com/weather/metars.html"
+   }
 
-=======
-		
-		//Hook into oepnshift deployment
-		wrap([$class: 'OpenShiftBuildWrapper', url: 'https://master.ose.dlt-demo.com:8443', credentialsId: 'DLT_OC', insecure: true //Don't check server certificate]) {
-	 
-				sh "oc new-app hdharia/metarapp-jboss-dlt:${env.BUILD_NUMBER}"
-	        }
-		
->>>>>>> master
-		echo "Deployed to Prod"
-	}
+   echo "Deployed to Prod"
+  }
 }
-*/
-
 
 /**
  * Deploy Maven on the slave if needed and add it to the path
