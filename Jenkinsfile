@@ -50,14 +50,14 @@ node()
    sh 'scripts/get-instance-ip.sh > IP'
 
    def IP=readFile('IP')
-   echo "Application Link: ${IP}:8080/metarapp/metars.html"
+   echo "Application Link: ${IP}:8080/metarapp/metars_map.html"
 
    stage "Verify Dev Deployment"
    timeout(time: 60, unit: 'SECONDS')
    {
       try
       {
-        input message: "Does Dev at ${IP}:8080/metarapp/metars.html look good?"
+        input message: "Does Dev at ${IP}:8080/metarapp/metars_map.html look good?"
       }
       catch(Exception e)
       {
@@ -126,14 +126,14 @@ node()
    //sh 'scripts/get-instance-ip.sh > IP'
 
    //def IP=readFile('IP')
-   //echo "Application Link: ${IP}:8080/metarapp/metars.html"
+   //echo "Application Link: ${IP}:8080/metarapp/metars_map.html"
 
    stage "Verify QA Deployment"
    timeout(time: 60, unit: 'SECONDS')
    {
       try
       {
-        input message: "Does QA at ${IP}:8080/metarapp/metars.html look good?"
+        input message: "Does QA at ${IP}:8080/metarapp/metars_map.html look good?"
       }
       catch(Exception e)
       {
@@ -196,7 +196,7 @@ if (env.BRANCH_NAME.startsWith("master")) //Deploy to master only from master br
      sh "oc new-app hdharia/metarapp-jboss-app:${env.BUILD_NUMBER}"
      sh "oc expose svc/metarapp-jboss-app --hostname=metarapp-jboss-app-harshal-project.ose.dlt-demo.com"
 
-     echo "Verify Application Deployed to: http://metarapp-jboss-app-harshal-project.ose.dlt-demo.com/weather/metars.html"
+     echo "Verify Application Deployed to: http://metarapp-jboss-app-harshal-project.ose.dlt-demo.com/weather/metars_map.html"
    }
 
    echo "Deployed to Prod"
