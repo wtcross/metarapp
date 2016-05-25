@@ -6,7 +6,9 @@ node(){
     // COMPILE AND JUNIT
 
     //use git checkout
-    checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/hdharia/metarapp.git']]])
+    //checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/hdharia/metarapp.git']]])
+    checkout scm
+
 
 	  sh('pwd')
 	  sh('git rev-parse HEAD > GIT_COMMIT')
