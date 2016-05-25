@@ -63,7 +63,7 @@
               }
            }
        }
-       restStationHttp.open("GET","/rest/METAR/stations",true);
+       restStationHttp.open("GET","/weather/rest/METAR/stations",true);
        restStationHttp.send();
      }
        function loadInfoWindow(_map, _marker) {
@@ -121,7 +121,7 @@
                  aInfowindow.open(_map,_marker);
               }
            }
-           restMetarHttp.open("GET","/rest/METAR/"+_marker.id,true);
+           restMetarHttp.open("GET","/weather/rest/METAR/"+_marker.id,true);
            restMetarHttp.send();
        }
        google.maps.event.addDomListener(window, 'load', initialize);
