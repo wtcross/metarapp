@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <script src="include/metars.js"></script>
     <link rel="shortcut icon" href="http://www.dlt.com/sites/all/themes/dlt/favicon.ico" />
-    <title>METAR Locations - Welcome</title>
+    <title>METAR Locations</title>
 
     <style>
       html, body, #map-canvas {
@@ -13,7 +13,6 @@
         margin: 0px;
         padding: 0px
       }
-
     metarContent {
         font-size:24px;
         color: #ff0000;
@@ -30,11 +29,8 @@
                zoom: 5,
                center: myLatlng
        };
-
        var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
-
        var restStationHttp;
-
        if (window.XMLHttpRequest)
        {
           // code for IE7+, Firefox, Chrome, Opera, Safari
@@ -46,7 +42,6 @@
           // code for IE6, IE5
           restStationHttp=new ActiveXObject("Microsoft.XMLHTTP");
        }
-
        restStationHttp.onreadystatechange=function()
        {
           if (restStationHttp.readyState==4 && restStationHttp.status==200)
@@ -54,7 +49,6 @@
               var jsonData = JSON.parse(restStationHttp.responseText);
               var aLatlng = new google.maps.LatLng(0,0);
               var aMarker;
-
               for(var i = 0; i < jsonData.length; i++)
               {
                  aLatlng = new google.maps.LatLng(jsonData[i].latitude,jsonData[i].longitude);
@@ -64,23 +58,17 @@
                        map: map,
                        id: jsonData[i].id,
                        title: jsonData[i].name });
-
                  google.maps.event.addListener(aMarker, 'click', (function(aMarker, i)
                       { return function() { loadInfoWindow(map, aMarker); } })(aMarker, i));
-
               }
-
            }
        }
-
        restStationHttp.open("GET","/rest/METAR/stations",true);
        restStationHttp.send();
      }
-
        function loadInfoWindow(_map, _marker) {
            var restMetarHttp;
            var aContentString = "";
-
            if (window.XMLHttpRequest)
            {
               // code for IE7+, Firefox, Chrome, Opera, Safari
@@ -92,28 +80,23 @@
               // code for IE6, IE5
               restMetarHttp=new ActiveXObject("Microsoft.XMLHTTP");
            }
-
            var jsonRows = '';
            var aMetars = '';
            var aTranslatedMetars = '';
-
            restMetarHttp.onreadystatechange=function()
            {
               if (restMetarHttp.readyState==4 && restMetarHttp.status==200)
               {
                  var jsonData = JSON.parse(restMetarHttp.responseText);
-
                  for(var i = 0; i < jsonData.length; i++)
                  {
                     jsonRows += jsonData[i].rawText+"<br>";
                     aMetars += jsonData[i].rawText+"";
                  }
-
                  var regExpRepace = new RegExp(", "+_marker.id, "gi");
                  aTranslatedMetars = metar(aMetars);
                  aTranslatedMetars =
                      aTranslatedMetars.replace(regExpRepace, "<br>"+_marker.id);
-
                  aContentString = '<div id="content">'+
                          '<h1 id="firstHeading" class="firstHeading">'+_marker.title+'</h1>'+
                          '<div id="metarContent">'+
@@ -125,7 +108,6 @@
                          aTranslatedMetars +
                          '</div>'+
                          '</div>';
-
                  if(jsonRows.length == 0)
                  {
                     aContentString = '<div id="content">'+
@@ -135,16 +117,13 @@
                          '</div>'+
                          '</div>';
                  }
-
                  var aInfowindow = new google.maps.InfoWindow({ content: aContentString });
                  aInfowindow.open(_map,_marker);
               }
            }
-
            restMetarHttp.open("GET","/rest/METAR/"+_marker.id,true);
            restMetarHttp.send();
        }
-
        google.maps.event.addDomListener(window, 'load', initialize);
     </script>
   </head>
