@@ -36,7 +36,7 @@
     depth: 1
     force: yes
     dest: metarapp
-    version: "{{ commit_id }}"
+    version: master
   become: no
 
 - name: Build the metarapp war
