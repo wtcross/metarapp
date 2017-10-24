@@ -1,0 +1,16 @@
+---
+- src: https://github.com/rhtconsulting/jboss_eap.git
+  version: master
+  name: jboss_eap
+
+- src: https://github.com/rhtconsulting/ansible-role-jboss-common.git
+  version: master
+  name: jboss_common
+
+- src: https://github.com/sabre1041/redhat-csp-download.git
+  version: master
+  name: redhat-csp-download
+
+- src: https://github.com/geerlingguy/ansible-role-mysql.git
+  version: 2.8.0
+  name: mysql

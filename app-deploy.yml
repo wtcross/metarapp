@@ -1,0 +1,21 @@
+---
+- name: Configure provisioned instance
+  hosts: tag_Demo_workflow
+  gather_facts: yes
+  become: yes
+  roles:
+    - role: mysql
+      mysql_databases:
+        - name: "{{ mysql_db_database }}"
+      mysql_users:
+        - name: "{{ mysql_db_username }}"
+          password: "{{ mysql_db_password }}"
+          priv: "*.*:ALL"
+    - role: jboss_eap
+
+- name: Deploy app to provisioned instance
+  hosts: tag_Demo_workflow
+  gather_facts: yes
+  become: yes
+  roles:
+    - app
